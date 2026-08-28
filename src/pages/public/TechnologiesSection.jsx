@@ -212,7 +212,6 @@ function TechnologiesSection() {
                 >
                   <TechnologyGroup
                     title="Frontend"
-                    number="01"
                     technologies={
                       technologyGroups.frontend
                     }
@@ -220,23 +219,20 @@ function TechnologiesSection() {
 
                   <TechnologyGroup
                     title="Backend"
-                    number="02"
                     technologies={
                       technologyGroups.backend
                     }
                   />
 
                   <TechnologyGroup
-                    title="Datos & Cloud"
-                    number="03"
+                    title="Datos, DB & Cloud"
                     technologies={
                       technologyGroups.database
                     }
                   />
 
                   <TechnologyGroup
-                    title="Herramientas"
-                    number="04"
+                    title="Herramientas & DevOps"
                     technologies={
                       technologyGroups.tools
                     }
@@ -252,7 +248,6 @@ function TechnologiesSection() {
 
 function TechnologyGroup({
   title,
-  number,
   technologies,
 }) {
   if (!technologies.length) {
@@ -276,7 +271,6 @@ function TechnologyGroup({
         className="
           flex
           items-center
-          justify-between
         "
       >
         <h3
@@ -288,16 +282,6 @@ function TechnologyGroup({
         >
           {title}
         </h3>
-
-        <span
-          className="
-            text-xs
-            font-medium
-            theme-accent
-          "
-        >
-          {number}
-        </span>
       </div>
 
       <div
@@ -400,9 +384,29 @@ function getTechnologyGroup(
     ) ||
     explicitCategory.includes(
       "data"
+    ) ||
+    explicitCategory.includes(
+      "sql"
     )
   ) {
     return "database";
+  }
+
+  if (
+    explicitCategory.includes(
+      "tool"
+    ) ||
+    explicitCategory.includes(
+      "devops"
+    ) ||
+    explicitCategory.includes(
+      "design"
+    ) ||
+    explicitCategory.includes(
+      "herramient"
+    )
+  ) {
+    return "tools";
   }
 
   const name = (
@@ -432,11 +436,23 @@ function getTechnologyGroup(
   const database = [
     "postgres",
     "postgresql",
+    "mongodb",
+    "mongo",
+    "sql",
+    "mysql",
     "supabase",
     "railway",
-    "mongodb",
-    "mysql",
     "vercel",
+  ];
+
+  const tools = [
+    "github",
+    "git",
+    "docker",
+    "postman",
+    "insomnia",
+    "dbeaver",
+    "figma",
   ];
 
   if (
@@ -461,6 +477,14 @@ function getTechnologyGroup(
     )
   ) {
     return "database";
+  }
+
+  if (
+    tools.some((item) =>
+      name.includes(item)
+    )
+  ) {
+    return "tools";
   }
 
   return "tools";
