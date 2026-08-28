@@ -1,0 +1,489 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    "Manrope",
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+/* =========================================================
+   PORTFOLIO THEME TOKENS
+   =========================================================
+   Los componentes deben depender de estos nombres semánticos,
+   no de colores concretos.
+========================================================= */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --theme-bg-page: #050505;
+  --theme-bg-secondary: #0a0a0a;
+  --theme-bg-card: #111111;
+  --theme-bg-elevated: #161616;
+  --theme-bg-input: #080808;
+
+  /* Text */
+  --theme-text-primary: #f5f5f5;
+  --theme-text-secondary: #a3a3a3;
+  --theme-text-muted: #737373;
+  --theme-text-subtle: #525252;
+
+  /* Borders */
+  --theme-border: rgb(255 255 255 / 0.10);
+  --theme-border-strong: rgb(255 255 255 / 0.18);
+
+  /* Brand accent */
+  --theme-accent: #c7a86b;
+  --theme-accent-hover: #d8bd83;
+  --theme-accent-strong: #8c7449;
+  --theme-accent-soft: rgb(199 168 107 / 0.10);
+
+  /* States */
+  --theme-success: #34d399;
+  --theme-success-soft: rgb(52 211 153 / 0.10);
+  --theme-warning: #fbbf24;
+  --theme-warning-soft: rgb(251 191 36 / 0.10);
+  --theme-danger: #f87171;
+  --theme-danger-soft: rgb(248 113 113 / 0.10);
+
+  /* Shadow */
+  --theme-shadow:
+    0 24px 70px rgb(0 0 0 / 0.28);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --theme-bg-page: #f7f6f3;
+  --theme-bg-secondary: #efede8;
+  --theme-bg-card: #ffffff;
+  --theme-bg-elevated: #ffffff;
+  --theme-bg-input: #fbfaf8;
+
+  /* Text */
+  --theme-text-primary: #171717;
+  --theme-text-secondary: #525252;
+  --theme-text-muted: #737373;
+  --theme-text-subtle: #8a8a8a;
+
+  /* Borders */
+  --theme-border: rgb(0 0 0 / 0.10);
+  --theme-border-strong: rgb(0 0 0 / 0.18);
+
+  /* Brand accent - más oscuro para contraste */
+  --theme-accent: #9a783d;
+  --theme-accent-hover: #765b2c;
+  --theme-accent-strong: #654a22;
+  --theme-accent-soft: rgb(154 120 61 / 0.10);
+
+  /* States */
+  --theme-success: #059669;
+  --theme-success-soft: rgb(5 150 105 / 0.10);
+  --theme-warning: #b45309;
+  --theme-warning-soft: rgb(180 83 9 / 0.10);
+  --theme-danger: #dc2626;
+  --theme-danger-soft: rgb(220 38 38 / 0.10);
+
+  /* Shadow */
+  --theme-shadow:
+    0 22px 55px rgb(23 23 23 / 0.08);
+}
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+:root {
+  font-family:
+    "Manrope",
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background:
+    var(--theme-bg-page);
+  color:
+    var(--theme-text-primary);
+}
+
+html {
+  scroll-behavior: smooth;
+  background:
+    var(--theme-bg-page);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  background:
+    var(--theme-bg-page);
+  color:
+    var(--theme-text-primary);
+
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background:
+    var(--theme-accent);
+  color:
+    var(--theme-bg-page);
+}
+
+
+/* Fixed navigation offset for hash links */
+section[id] {
+  scroll-margin-top: 7rem;
+}
+
+/* Consistent keyboard focus */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid
+    var(--theme-accent);
+  outline-offset: 3px;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* =========================================================
+   SEMANTIC THEME CLASSES
+========================================================= */
+
+@layer components {
+
+  /* ---------- Surfaces ---------- */
+
+  .theme-page {
+    background-color:
+      var(--theme-bg-page);
+    color:
+      var(--theme-text-primary);
+  }
+
+  .theme-section {
+    background-color:
+      var(--theme-bg-secondary);
+    color:
+      var(--theme-text-primary);
+  }
+
+  .theme-card {
+    background-color:
+      var(--theme-bg-card);
+    border-color:
+      var(--theme-border);
+    color:
+      var(--theme-text-primary);
+  }
+
+  .theme-card-elevated {
+    background-color:
+      var(--theme-bg-elevated);
+    border-color:
+      var(--theme-border);
+    color:
+      var(--theme-text-primary);
+    box-shadow:
+      var(--theme-shadow);
+  }
+
+  .theme-input {
+    background-color:
+      var(--theme-bg-input);
+    border-color:
+      var(--theme-border);
+    color:
+      var(--theme-text-primary);
+  }
+
+  .theme-input::placeholder {
+    color:
+      var(--theme-text-subtle);
+  }
+
+  .theme-input:focus {
+    border-color:
+      var(--theme-accent);
+    outline: none;
+  }
+
+  /* ---------- Text ---------- */
+
+  .theme-title {
+    color:
+      var(--theme-text-primary);
+  }
+
+  .theme-text {
+    color:
+      var(--theme-text-secondary);
+  }
+
+  .theme-muted {
+    color:
+      var(--theme-text-muted);
+  }
+
+  .theme-subtle {
+    color:
+      var(--theme-text-subtle);
+  }
+
+  .theme-accent {
+    color:
+      var(--theme-accent);
+  }
+
+  .theme-eyebrow {
+    color:
+      var(--theme-accent);
+  }
+
+  /* ---------- Borders ---------- */
+
+  .theme-border {
+    border-color:
+      var(--theme-border);
+  }
+
+  .theme-border-strong {
+    border-color:
+      var(--theme-border-strong);
+  }
+
+  /* ---------- Links ---------- */
+
+  .theme-link {
+    color:
+      var(--theme-accent);
+    transition:
+      color 180ms ease;
+  }
+
+  .theme-link:hover {
+    color:
+      var(--theme-accent-hover);
+  }
+
+  /* ---------- Buttons ---------- */
+
+  .theme-btn-primary {
+    background-color:
+      var(--theme-text-primary);
+    color:
+      var(--theme-bg-page);
+    border: 1px solid
+      var(--theme-text-primary);
+
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  .theme-btn-primary:hover {
+    opacity: 0.88;
+  }
+
+  .theme-btn-primary:active {
+    transform:
+      translateY(1px);
+  }
+
+  .theme-btn-secondary {
+    background-color:
+      transparent;
+    color:
+      var(--theme-text-primary);
+    border: 1px solid
+      var(--theme-border);
+
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .theme-btn-secondary:hover {
+    border-color:
+      var(--theme-border-strong);
+    background-color:
+      var(--theme-bg-secondary);
+  }
+
+  .theme-btn-accent {
+    background-color:
+      transparent;
+    color:
+      var(--theme-accent);
+    border: 1px solid
+      color-mix(
+        in srgb,
+        var(--theme-accent) 38%,
+        transparent
+      );
+
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .theme-btn-accent:hover {
+    color:
+      var(--theme-accent-hover);
+    border-color:
+      var(--theme-accent-hover);
+    background-color:
+      var(--theme-accent-soft);
+  }
+
+  .theme-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.5rem;
+    height: 2.5rem;
+
+    border-radius: 0.75rem;
+    border: 1px solid
+      var(--theme-border);
+
+    background:
+      var(--theme-bg-card);
+    color:
+      var(--theme-text-secondary);
+
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .theme-icon-button:hover {
+    color:
+      var(--theme-accent);
+    border-color:
+      color-mix(
+        in srgb,
+        var(--theme-accent) 45%,
+        transparent
+      );
+    background:
+      var(--theme-accent-soft);
+  }
+
+  /* ---------- Cards with interaction ---------- */
+
+  .theme-card-hover {
+    background-color:
+      var(--theme-bg-card);
+    border-color:
+      var(--theme-border);
+    color:
+      var(--theme-text-primary);
+
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .theme-card-hover:hover {
+    border-color:
+      color-mix(
+        in srgb,
+        var(--theme-accent) 30%,
+        var(--theme-border)
+      );
+
+    transform:
+      translateY(-2px);
+
+    box-shadow:
+      var(--theme-shadow);
+  }
+
+  /* ---------- Status ---------- */
+
+  .theme-success {
+    color:
+      var(--theme-success);
+  }
+
+  .theme-warning {
+    color:
+      var(--theme-warning);
+  }
+
+  .theme-danger {
+    color:
+      var(--theme-danger);
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration:
+      0.01ms !important;
+    animation-duration:
+      0.01ms !important;
+    animation-iteration-count:
+      1 !important;
+  }
+}

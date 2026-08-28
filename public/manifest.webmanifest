@@ -1,0 +1,19 @@
+{
+  "name": "Portafolio de Juan Estay",
+  "short_name": "Juan Estay",
+  "description": "Portafolio profesional de Juan Estay, desarrollador Full Stack.",
+  "lang": "es-CL",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
