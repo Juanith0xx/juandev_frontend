@@ -11,6 +11,7 @@ import {
 
 import Navbar from "../../components/public/Navbar";
 import Footer from "../../components/public/Footer";
+import ProjectImageCarousel from "../../components/public/ProjectImageCarousel";
 import Seo from "../../components/common/Seo";
 
 import {
@@ -164,10 +165,6 @@ function ProjectDetailPage() {
       <Navbar />
 
       <main>
-        {/* ============================================
-            STATE
-        ============================================ */}
-
         {loading && (
           <ProjectDetailSkeleton />
         )}
@@ -183,10 +180,6 @@ function ProjectDetailPage() {
           !error &&
           project && (
             <>
-              {/* ======================================
-                  HERO
-              ====================================== */}
-
               <section
                 className="
                   relative
@@ -389,10 +382,6 @@ function ProjectDetailPage() {
                 </div>
               </section>
 
-              {/* ======================================
-                  CONFIDENTIAL
-              ====================================== */}
-
               {confidential ? (
                 <ConfidentialProject
                   project={
@@ -409,10 +398,6 @@ function ProjectDetailPage() {
                   }
                 />
               )}
-
-              {/* ======================================
-                  CTA
-              ====================================== */}
 
               <section
                 className="
@@ -535,19 +520,8 @@ function PublicProjectContent({
       project
     );
 
-  const primaryImage =
-    images[0];
-
-  const secondaryImages =
-    images.slice(
-      1,
-      5
-    );
-
   return (
     <>
-      {/* VISUAL */}
-
       <section
         className="
           theme-section
@@ -565,84 +539,18 @@ function PublicProjectContent({
             lg:px-8
           "
         >
-          {primaryImage ? (
-            <div
-              className="
-                overflow-hidden
-                rounded-[1.75rem]
-                border
-                border-[var(--theme-border)]
-                bg-[var(--theme-bg-card)]
-              "
-            >
-              <img
-                src={
-                  primaryImage.url
-                }
-                alt={
-                  primaryImage.alt ||
-                  project.title
-                }
-                className="
-                  aspect-[16/8]
-                  w-full
-                  object-cover
-                "
-              />
-            </div>
+          {images.length > 0 ? (
+            <ProjectImageCarousel
+              images={images}
+              projectTitle={
+                project.title
+              }
+            />
           ) : (
             <ProjectVisualFallback />
           )}
-
-          {secondaryImages.length >
-            0 && (
-            <div
-              className="
-                mt-5
-                grid
-                gap-5
-                sm:grid-cols-2
-              "
-            >
-              {secondaryImages.map(
-                (
-                  image,
-                  index
-                ) => (
-                  <div
-                    key={
-                      image.id ||
-                      `${image.url}-${index}`
-                    }
-                    className="
-                      overflow-hidden
-                      rounded-2xl
-                      border
-                      border-[var(--theme-border)]
-                      bg-[var(--theme-bg-card)]
-                    "
-                  >
-                    <img
-                      src={image.url}
-                      alt={
-                        image.alt ||
-                        project.title
-                      }
-                      className="
-                        aspect-[16/10]
-                        w-full
-                        object-cover
-                      "
-                    />
-                  </div>
-                )
-              )}
-            </div>
-          )}
         </div>
       </section>
-
-      {/* DETAIL */}
 
       <section
         className="
@@ -1187,7 +1095,8 @@ function getProjectImages(
 
   const pushImage = (
     value,
-    alt = ""
+    alt = "",
+    id = null
   ) => {
     if (!value) {
       return;
@@ -1203,6 +1112,7 @@ function getProjectImages(
     }
 
     values.push({
+      id,
       url: value,
       alt,
     });
@@ -1269,7 +1179,8 @@ function getProjectImages(
             image.src,
           image.alt_text ||
             image.alt ||
-            project.title
+            project.title,
+          image.id || null
         );
       }
     );
