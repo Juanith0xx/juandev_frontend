@@ -4,15 +4,12 @@ import {
   createAdminProjectImage,
   deleteAdminProject,
   deleteAdminProjectImage,
-  deleteAdminStorageAsset,
   getAdminProjectImages,
   getAdminProjects,
-  getAdminStorageStatus,
   getAdminTechnologies,
   updateAdminProject,
   updateAdminProjectImage,
   updateAdminProjectTechnologies,
-  uploadAdminStorageAsset,
 } from "../../services/projectsAdminService";
 
 const PROJECT_TYPES = [
@@ -380,10 +377,12 @@ function ProjectContentModal({ project, onClose, onChanged }) {
 
   const [images, setImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [storage, setStorage] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadAltText, setUploadAltText] = useState("");
+  const [registeringImage, setRegisteringImage] = useState(false);
+  const [imageFolder, setImageFolder] = useState(
+    () => getDefaultProjectImageFolder(project)
+  );
+  const [imageFileName, setImageFileName] = useState("");
+  const [imageAltText, setImageAltText] = useState("");
   const [makeCover, setMakeCover] = useState(false);
 
   const [error, setError] = useState("");
@@ -441,14 +440,10 @@ function ProjectContentModal({ project, onClose, onChanged }) {
       setLoadingImages(true);
       setError("");
 
-      const [imagesData, storageData] = await Promise.all([
-        getAdminProjectImages(project.id),
-        getAdminStorageStatus(),
-      ]);
+      const imagesData = await getAdminProjectImages(project.id);
 
       const list = Array.isArray(imagesData?.images) ? imagesData.images : [];
       setImages(list);
-      setStorage(storageData?.storage || null);
       setMakeCover(!list.some((image) => image.is_cover));
     } catch (err) {
       console.error("Error cargando imágenes:", err);
@@ -536,94 +531,75 @@ function ProjectContentModal({ project, onClose, onChanged }) {
     }
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    setSelectedFile(file);
-    setSuccess("");
-    setError("");
+  const imageUrlPreview = useMemo(
+    () => buildPublicProjectImageUrl(imageFolder, imageFileName),
+    [imageFolder, imageFileName]
+  );
 
-    if (file && !uploadAltText) {
-      const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-      setUploadAltText(baseName);
-    }
-  };
+  const registerImage = async () => {
+    const fileName = imageFileName.trim();
 
-  const uploadImage = async () => {
-    if (!selectedFile) {
-      setError("Selecciona una imagen para subir.");
+    if (!fileName) {
+      setError("Ingresa el nombre del archivo que ya existe en public.");
       return;
     }
 
-    const allowedTypes = new Set([
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/avif",
-      "image/gif",
-    ]);
-
-    if (!allowedTypes.has(selectedFile.type)) {
+    if (!/\.(jpe?g|png|webp|avif|gif)$/i.test(fileName)) {
       setError("Formato no permitido. Usa JPG, PNG, WEBP, AVIF o GIF.");
       return;
     }
 
-    if (selectedFile.size > 8 * 1024 * 1024) {
-      setError("La imagen supera el máximo de 8 MB.");
+    const imageUrl = buildPublicProjectImageUrl(imageFolder, fileName);
+
+    if (!imageUrl) {
+      setError("No fue posible construir la ruta pública de la imagen.");
       return;
     }
 
-    let uploadedAsset = null;
+    if (images.some((image) => image.image_url === imageUrl)) {
+      setError("Esta imagen ya está registrada en el proyecto.");
+      return;
+    }
 
     try {
-      setUploadingImage(true);
+      setRegisteringImage(true);
       setError("");
       setSuccess("");
 
-      const uploadData = await uploadAdminStorageAsset(
-        selectedFile,
-        `projects/${project.id}`
-      );
+      const exists = await checkPublicImageExists(imageUrl);
 
-      uploadedAsset = uploadData?.asset;
-
-      if (!uploadedAsset?.public_url) {
-        throw new Error("Storage no devolvió la URL pública del archivo.");
+      if (!exists) {
+        throw new Error(
+          `No encontramos ${imageUrl}. Confirma que el archivo exista físicamente en public${imageUrl} y que el frontend haya sido desplegado.`
+        );
       }
 
       const shouldBeCover = makeCover || images.length === 0;
 
       await createAdminProjectImage(project.id, {
-        image_url: uploadedAsset.public_url,
-        alt_text: uploadAltText.trim() || project.title,
+        image_url: imageUrl,
+        alt_text: imageAltText.trim() || project.title,
         is_cover: shouldBeCover,
         display_order: images.length,
       });
 
-      setSelectedFile(null);
-      setUploadAltText("");
+      setImageFileName("");
+      setImageAltText("");
       setMakeCover(false);
-      setSuccess("Imagen subida y registrada correctamente.");
+      setSuccess("Imagen local registrada correctamente.");
 
       await loadImages();
       await onChanged?.();
     } catch (err) {
-      console.error("Error subiendo imagen:", err);
-
-      if (uploadedAsset?.path) {
-        try {
-          await deleteAdminStorageAsset({ path: uploadedAsset.path });
-        } catch (cleanupError) {
-          console.error("No fue posible limpiar el archivo huérfano:", cleanupError);
-        }
-      }
+      console.error("Error registrando imagen local:", err);
 
       setError(
         err.response?.data?.message ||
           err.message ||
-          "No fue posible subir la imagen."
+          "No fue posible registrar la imagen."
       );
     } finally {
-      setUploadingImage(false);
+      setRegisteringImage(false);
     }
   };
 
@@ -797,37 +773,97 @@ function ProjectContentModal({ project, onClose, onChanged }) {
               <div className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
                 <div className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] p-6">
                   <p className="text-xs font-semibold uppercase tracking-[0.17em] text-[var(--theme-text-muted)]">
-                    Nueva imagen
+                    Registrar imagen local
                   </p>
 
                   <p className="mt-2 text-xs leading-6 text-[var(--theme-text-subtle)]">
-                    Sube JPG, PNG, WEBP, AVIF o GIF. Máximo 8 MB.
+                    Las imágenes se sirven desde la carpeta public del frontend.
+                    Primero copia el archivo al proyecto y después registra aquí su ruta.
                   </p>
 
-                  <label className="mt-5 block cursor-pointer rounded-xl border border-dashed border-[var(--theme-border-strong)] bg-[var(--theme-bg-secondary)] p-5 text-center transition hover:border-[var(--theme-accent)]">
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                    <p className="text-sm font-medium text-[var(--theme-text-primary)]">
-                      {selectedFile ? selectedFile.name : "Seleccionar imagen"}
+                  <div className="mt-5 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--theme-text-subtle)]">
+                      Carpeta física esperada
                     </p>
-                    {selectedFile && (
-                      <p className="mt-1 text-[10px] text-[var(--theme-text-subtle)]">
-                        {formatFileSize(selectedFile.size)}
-                      </p>
-                    )}
-                  </label>
+                    <code className="mt-2 block break-all text-xs text-[var(--theme-accent)]">
+                      public{normalizePublicFolder(imageFolder) || "/project"}
+                    </code>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="mb-2 block text-xs font-medium text-[var(--theme-text-secondary)]">
+                      Carpeta pública del proyecto
+                    </label>
+                    <input
+                      value={imageFolder}
+                      onChange={(event) => {
+                        setImageFolder(event.target.value);
+                        setError("");
+                        setSuccess("");
+                      }}
+                      placeholder="/project/alaluf"
+                      className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] px-4 py-3 text-sm text-[var(--theme-text-primary)] outline-none placeholder:text-[var(--theme-text-subtle)] focus:border-[var(--theme-accent)]/25"
+                    />
+                    <p className="mt-2 text-[10px] leading-5 text-[var(--theme-text-subtle)]">
+                      Para Alaluf usa <strong>/project/alaluf</strong>.
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="mb-2 block text-xs font-medium text-[var(--theme-text-secondary)]">
+                      Nombre del archivo
+                    </label>
+                    <input
+                      value={imageFileName}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setImageFileName(value);
+                        setError("");
+                        setSuccess("");
+
+                        if (value && !imageAltText) {
+                          const baseName = value
+                            .replace(/\.[^.]+$/, "")
+                            .replace(/[-_]+/g, " ");
+
+                          setImageAltText(baseName);
+                        }
+                      }}
+                      placeholder="cover.webp"
+                      className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] px-4 py-3 text-sm text-[var(--theme-text-primary)] outline-none placeholder:text-[var(--theme-text-subtle)] focus:border-[var(--theme-accent)]/25"
+                    />
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="mb-2 block text-xs font-medium text-[var(--theme-text-secondary)]">
+                      Ruta pública generada
+                    </label>
+                    <div className="min-h-[46px] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] px-4 py-3">
+                      <code className="break-all text-xs text-[var(--theme-accent)]">
+                        {imageUrlPreview || "—"}
+                      </code>
+                    </div>
+                  </div>
+
+                  {imageUrlPreview && (
+                    <div className="mt-4 overflow-hidden rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)]">
+                      <div className="aspect-[16/9] bg-black">
+                        <img
+                          src={imageUrlPreview}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <div className="mt-4">
                     <label className="mb-2 block text-xs font-medium text-[var(--theme-text-secondary)]">
                       Texto alternativo
                     </label>
                     <input
-                      value={uploadAltText}
-                      onChange={(event) => setUploadAltText(event.target.value)}
+                      value={imageAltText}
+                      onChange={(event) => setImageAltText(event.target.value)}
                       placeholder="Describe brevemente la imagen"
                       className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] px-4 py-3 text-sm text-[var(--theme-text-primary)] outline-none placeholder:text-[var(--theme-text-subtle)] focus:border-[var(--theme-accent)]/25"
                     />
@@ -850,23 +886,13 @@ function ProjectContentModal({ project, onClose, onChanged }) {
                     </div>
                   </label>
 
-                  {storage && !storage.configured && (
-                    <div className="mt-4 rounded-xl border border-[var(--theme-warning)] bg-[var(--theme-warning-soft)] px-4 py-3 text-xs leading-5 text-[var(--theme-warning)]">
-                      Supabase Storage no está configurado en el backend.
-                    </div>
-                  )}
-
                   <button
                     type="button"
-                    onClick={uploadImage}
-                    disabled={
-                      uploadingImage ||
-                      !selectedFile ||
-                      storage?.configured === false
-                    }
+                    onClick={registerImage}
+                    disabled={registeringImage || !imageFileName.trim()}
                     className="mt-5 w-full rounded-xl bg-[var(--theme-accent)] px-5 py-3.5 text-sm font-semibold text-[var(--theme-bg-page)] transition hover:bg-[var(--theme-accent-hover)] disabled:cursor-not-allowed disabled:opacity-35"
                   >
-                    {uploadingImage ? "Subiendo..." : "Subir imagen"}
+                    {registeringImage ? "Registrando..." : "Registrar imagen"}
                   </button>
                 </div>
 
@@ -877,7 +903,7 @@ function ProjectContentModal({ project, onClose, onChanged }) {
                         Galería
                       </p>
                       <p className="mt-2 text-xs text-[var(--theme-text-subtle)]">
-                        La portada se sincroniza automáticamente con el proyecto.
+                        Las rutas se guardan en PostgreSQL y los archivos permanecen en public del frontend.
                       </p>
                     </div>
 
@@ -1096,7 +1122,7 @@ function ProjectImageAdminCard({
         {confirmDelete && (
           <div className="mt-3 rounded-xl border border-[var(--theme-danger)] bg-[var(--theme-danger-soft)] p-3">
             <p className="text-xs leading-5 text-[var(--theme-danger)]">
-              La imagen será eliminada de PostgreSQL y del Storage si pertenece al bucket configurado.
+              Se eliminará únicamente el registro de PostgreSQL. El archivo físico permanecerá en public del frontend.
             </p>
             <div className="mt-3 flex gap-2">
               <button
@@ -1158,12 +1184,6 @@ function formatTechnologyCategory(value) {
   return labels[normalized] || value || "Otras";
 }
 
-function formatFileSize(bytes) {
-  const value = Number(bytes) || 0;
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 function ProjectEditor({
   mode,
@@ -1476,8 +1496,8 @@ function ProjectEditor({
                 </p>
                 <p className="mt-2 text-xs leading-5 text-[var(--theme-text-subtle)]">
                   {editing
-                    ? "La portada se administra desde el botón Contenido → Imágenes del proyecto."
-                    : "Primero crea el proyecto. Luego podrás subir y elegir su portada desde Contenido → Imágenes."}
+                    ? "La portada se administra desde Contenido → Imágenes registrando una ruta de public del frontend."
+                    : "Primero crea el proyecto. Luego agrega la imagen a public/project/... y regístrala desde Contenido → Imágenes."}
                 </p>
               </div>
             </div>
@@ -1881,6 +1901,76 @@ function projectToForm(project) {
     is_published: Boolean(project.is_published),
     display_order: Number(project.display_order) || 0,
   };
+}
+
+
+function getDefaultProjectImageFolder(project) {
+  const clientSlug = createSlug(project?.client_name || "");
+  const projectSlug = createSlug(
+    project?.slug ||
+      project?.title ||
+      "proyecto"
+  );
+
+  return `/project/${clientSlug || projectSlug}`;
+}
+
+function normalizePublicFolder(value = "") {
+  let folder = String(value)
+    .trim()
+    .replace(/\\/g, "/");
+
+  folder = folder.replace(/^public\/?/i, "/");
+
+  if (!folder) {
+    return "";
+  }
+
+  if (!folder.startsWith("/")) {
+    folder = `/${folder}`;
+  }
+
+  return folder
+    .replace(/\/+/g, "/")
+    .replace(/\/+$/, "");
+}
+
+function buildPublicProjectImageUrl(folder, fileName) {
+  const normalizedFolder =
+    normalizePublicFolder(folder);
+
+  const normalizedFileName = String(
+    fileName || ""
+  )
+    .trim()
+    .replace(/\\/g, "/")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+
+  if (
+    !normalizedFolder ||
+    !normalizedFileName
+  ) {
+    return "";
+  }
+
+  return `${normalizedFolder}/${normalizedFileName}`;
+}
+
+function checkPublicImageExists(url) {
+  return new Promise((resolve) => {
+    if (!url) {
+      resolve(false);
+      return;
+    }
+
+    const image = new Image();
+
+    image.onload = () => resolve(true);
+    image.onerror = () => resolve(false);
+    image.src = `${url}?check=${Date.now()}`;
+  });
 }
 
 function createSlug(value = "") {
