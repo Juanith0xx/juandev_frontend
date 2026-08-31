@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+
 @import "tailwindcss";
 
 @theme {
@@ -12,8 +13,13 @@
 /* =========================================================
    PORTFOLIO THEME TOKENS
    =========================================================
+
    Los componentes deben depender de estos nombres semánticos,
    no de colores concretos.
+========================================================= */
+
+/* =========================================================
+   DARK THEME
 ========================================================= */
 
 :root,
@@ -21,11 +27,11 @@
   color-scheme: dark;
 
   /* Surfaces */
-  --theme-bg-page: #050505;
-  --theme-bg-secondary: #0a0a0a;
-  --theme-bg-card: #111111;
-  --theme-bg-elevated: #161616;
-  --theme-bg-input: #080808;
+  --theme-bg-page: #000000;
+  --theme-bg-secondary: #070707;
+  --theme-bg-card: #0d0d0d;
+  --theme-bg-elevated: #121212;
+  --theme-bg-input: #050505;
 
   /* Text */
   --theme-text-primary: #f5f5f5;
@@ -38,61 +44,69 @@
   --theme-border-strong: rgb(255 255 255 / 0.18);
 
   /* Brand accent */
-  --theme-accent: #c7a86b;
-  --theme-accent-hover: #d8bd83;
-  --theme-accent-strong: #8c7449;
-  --theme-accent-soft: rgb(199 168 107 / 0.10);
+  --theme-accent: #EB5D02;
+  --theme-accent-hover: #FF741C;
+  --theme-accent-strong: #B94700;
+  --theme-accent-soft: rgb(235 93 2 / 0.12);
 
   /* States */
   --theme-success: #34d399;
   --theme-success-soft: rgb(52 211 153 / 0.10);
+
   --theme-warning: #fbbf24;
   --theme-warning-soft: rgb(251 191 36 / 0.10);
+
   --theme-danger: #f87171;
   --theme-danger-soft: rgb(248 113 113 / 0.10);
 
   /* Shadow */
   --theme-shadow:
-    0 24px 70px rgb(0 0 0 / 0.28);
+    0 24px 70px rgb(0 0 0 / 0.45);
 }
+
+/* =========================================================
+   LIGHT THEME
+========================================================= */
 
 [data-theme="light"] {
   color-scheme: light;
 
   /* Surfaces */
-  --theme-bg-page: #f7f6f3;
-  --theme-bg-secondary: #efede8;
-  --theme-bg-card: #ffffff;
-  --theme-bg-elevated: #ffffff;
-  --theme-bg-input: #fbfaf8;
+  --theme-bg-page: #F7F7F5;
+  --theme-bg-secondary: #EFEFED;
+  --theme-bg-card: #FFFFFF;
+  --theme-bg-elevated: #FFFFFF;
+  --theme-bg-input: #FAFAF8;
 
   /* Text */
-  --theme-text-primary: #171717;
-  --theme-text-secondary: #525252;
+  --theme-text-primary: #111111;
+  --theme-text-secondary: #4A4A4A;
   --theme-text-muted: #737373;
-  --theme-text-subtle: #8a8a8a;
+  --theme-text-subtle: #969696;
 
   /* Borders */
   --theme-border: rgb(0 0 0 / 0.10);
   --theme-border-strong: rgb(0 0 0 / 0.18);
 
-  /* Brand accent - más oscuro para contraste */
-  --theme-accent: #9a783d;
-  --theme-accent-hover: #765b2c;
-  --theme-accent-strong: #654a22;
-  --theme-accent-soft: rgb(154 120 61 / 0.10);
+  /* Brand accent */
+  --theme-accent: #C64D00;
+  --theme-accent-hover: #A73F00;
+  --theme-accent-strong: #843200;
+  --theme-accent-soft: rgb(235 93 2 / 0.10);
 
   /* States */
-  --theme-success: #059669;
-  --theme-success-soft: rgb(5 150 105 / 0.10);
-  --theme-warning: #b45309;
+  --theme-success: #047857;
+  --theme-success-soft: rgb(4 120 87 / 0.10);
+
+  --theme-warning: #B45309;
   --theme-warning-soft: rgb(180 83 9 / 0.10);
-  --theme-danger: #dc2626;
+
+  --theme-danger: #DC2626;
   --theme-danger-soft: rgb(220 38 38 / 0.10);
 
   /* Shadow */
   --theme-shadow:
-    0 22px 55px rgb(23 23 23 / 0.08);
+    0 22px 55px rgb(0 0 0 / 0.08);
 }
 
 /* =========================================================
@@ -107,30 +121,42 @@
     sans-serif;
 
   font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+  text-rendering:
+    optimizeLegibility;
+
+  -webkit-font-smoothing:
+    antialiased;
+
+  -moz-osx-font-smoothing:
+    grayscale;
 
   background:
     var(--theme-bg-page);
+
   color:
     var(--theme-text-primary);
 }
 
 html {
   scroll-behavior: smooth;
+
   background:
     var(--theme-bg-page);
 }
 
 body {
   margin: 0;
+
   min-width: 320px;
+
   min-height: 100vh;
+
   overflow-x: hidden;
 
   background:
     var(--theme-bg-page);
+
   color:
     var(--theme-text-primary);
 
@@ -161,24 +187,28 @@ button {
 ::selection {
   background:
     var(--theme-accent);
+
   color:
     var(--theme-bg-page);
 }
 
-
 /* Fixed navigation offset for hash links */
+
 section[id] {
   scroll-margin-top: 7rem;
 }
 
 /* Consistent keyboard focus */
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid
+  outline:
+    2px solid
     var(--theme-accent);
+
   outline-offset: 3px;
 }
 
@@ -198,6 +228,7 @@ svg {
   .theme-page {
     background-color:
       var(--theme-bg-page);
+
     color:
       var(--theme-text-primary);
   }
@@ -205,6 +236,7 @@ svg {
   .theme-section {
     background-color:
       var(--theme-bg-secondary);
+
     color:
       var(--theme-text-primary);
   }
@@ -212,8 +244,10 @@ svg {
   .theme-card {
     background-color:
       var(--theme-bg-card);
+
     border-color:
       var(--theme-border);
+
     color:
       var(--theme-text-primary);
   }
@@ -221,10 +255,13 @@ svg {
   .theme-card-elevated {
     background-color:
       var(--theme-bg-elevated);
+
     border-color:
       var(--theme-border);
+
     color:
       var(--theme-text-primary);
+
     box-shadow:
       var(--theme-shadow);
   }
@@ -232,8 +269,10 @@ svg {
   .theme-input {
     background-color:
       var(--theme-bg-input);
+
     border-color:
       var(--theme-border);
+
     color:
       var(--theme-text-primary);
   }
@@ -246,6 +285,7 @@ svg {
   .theme-input:focus {
     border-color:
       var(--theme-accent);
+
     outline: none;
   }
 
@@ -298,6 +338,7 @@ svg {
   .theme-link {
     color:
       var(--theme-accent);
+
     transition:
       color 180ms ease;
   }
@@ -312,9 +353,12 @@ svg {
   .theme-btn-primary {
     background-color:
       var(--theme-text-primary);
+
     color:
       var(--theme-bg-page);
-    border: 1px solid
+
+    border:
+      1px solid
       var(--theme-text-primary);
 
     transition:
@@ -334,9 +378,12 @@ svg {
   .theme-btn-secondary {
     background-color:
       transparent;
+
     color:
       var(--theme-text-primary);
-    border: 1px solid
+
+    border:
+      1px solid
       var(--theme-border);
 
     transition:
@@ -347,6 +394,7 @@ svg {
   .theme-btn-secondary:hover {
     border-color:
       var(--theme-border-strong);
+
     background-color:
       var(--theme-bg-secondary);
   }
@@ -354,9 +402,12 @@ svg {
   .theme-btn-accent {
     background-color:
       transparent;
+
     color:
       var(--theme-accent);
-    border: 1px solid
+
+    border:
+      1px solid
       color-mix(
         in srgb,
         var(--theme-accent) 38%,
@@ -372,26 +423,34 @@ svg {
   .theme-btn-accent:hover {
     color:
       var(--theme-accent-hover);
+
     border-color:
       var(--theme-accent-hover);
+
     background-color:
       var(--theme-accent-soft);
   }
 
   .theme-icon-button {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
 
     width: 2.5rem;
+
     height: 2.5rem;
 
     border-radius: 0.75rem;
-    border: 1px solid
+
+    border:
+      1px solid
       var(--theme-border);
 
     background:
       var(--theme-bg-card);
+
     color:
       var(--theme-text-secondary);
 
@@ -404,12 +463,14 @@ svg {
   .theme-icon-button:hover {
     color:
       var(--theme-accent);
+
     border-color:
       color-mix(
         in srgb,
         var(--theme-accent) 45%,
         transparent
       );
+
     background:
       var(--theme-accent-soft);
   }
@@ -419,8 +480,10 @@ svg {
   .theme-card-hover {
     background-color:
       var(--theme-bg-card);
+
     border-color:
       var(--theme-border);
+
     color:
       var(--theme-text-primary);
 
@@ -481,8 +544,10 @@ svg {
   *::after {
     transition-duration:
       0.01ms !important;
+
     animation-duration:
       0.01ms !important;
+
     animation-iteration-count:
       1 !important;
   }
